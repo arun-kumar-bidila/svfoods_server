@@ -5,9 +5,9 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 
 // Import Routes
-// const productRoutes = require("./routes/productRoutes");
+const authRoutes = require("./routes/authRoutes");
 
-dotenv.config();
+dotenv.config({ override: true });
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json()); // parse JSON bodies
 
 // Routes
-// app.use("/api/products", productRoutes);
+app.use("/api/auth", authRoutes);
 
 // Default route
 app.get("/", (req, res) => {
