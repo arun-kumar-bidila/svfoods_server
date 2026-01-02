@@ -17,13 +17,13 @@ const registerUser = async (req, res) => {
 
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      res.json({ success: false, message: "User exists" });
+      return res.json({ success: false, message: "User exists" });
     }
     if (!validator.isEmail(email)) {
-      res.json({ success: false, message: "enter a valid email" });
+      return res.json({ success: false, message: "enter a valid email" });
     }
     if (password.length < 6) {
-      res.json({ success: false, message: "enter a strong password" });
+      return res.json({ success: false, message: "enter a strong password" });
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -35,10 +35,10 @@ const registerUser = async (req, res) => {
     const user = await newUser.save();
 
     const token = createToken(user._id);
-    res.json({ success: true, token });
+    return res.json({ success: true, token });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: "Error" });
+    return res.json({ success: false, message: "Error" });
   }
 };
 
@@ -49,21 +49,21 @@ const loginUser=async(req,res)=>{
         const user=await userModel.findOne({email})
 
         if(!user){
-            res.json({success:false,message:"User Doesnt exist"})
+            return res.json({success:false,message:"User Doesnt exist"})
         }
 
         const isMatch=await bcrypt.compare(password,user.password)
 
         if(!isMatch){
-            res.json({success:false,message:"invalid cred"})
+            return res.json({success:false,message:"invalid cred"})
         }
 
         const token=createToken(user._id)
-        res.json({success:true,token})
+        return res.json({success:true,token,...user._doc})
 
     } catch (error) {
         console.log(error)
-        res.json({success:false,message:"Error"})
+        return res.json({success:false,message:"Error"})
     }
 }
 
