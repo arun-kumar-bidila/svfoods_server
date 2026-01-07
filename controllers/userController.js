@@ -42,29 +42,51 @@ const registerUser = async (req, res) => {
   }
 };
 
-const loginUser=async(req,res)=>{
-    try {
-        const {email,password}=req.body
+const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-        const user=await userModel.findOne({email})
+    const user = await userModel.findOne({ email });
 
-        if(!user){
-            return res.json({success:false,message:"User Doesnt exist"})
-        }
-
-        const isMatch=await bcrypt.compare(password,user.password)
-
-        if(!isMatch){
-            return res.json({success:false,message:"invalid cred"})
-        }
-
-        const token=createToken(user._id)
-        return res.json({success:true,token,...user._doc})
-
-    } catch (error) {
-        console.log(error)
-        return res.json({success:false,message:"Error"})
+    if (!user) {
+      return res.json({ success: false, message: "User Doesnt exist" });
     }
-}
 
-export { registerUser,loginUser };
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.json({ success: false, message: "invalid cred" });
+    }
+
+    const token = createToken(user._id);
+    return res.json({ success: true, token, ...user._doc });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error" });
+  }
+};
+
+const getUser = async (req, res) => {
+  try {
+    const { token } = req.headers;
+
+    if (!token) {
+      return res.json({ success: false, message: "token is empty" });
+    }
+
+    const token_decode = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel.findById(token_decode.id);
+
+    if (!user) {
+      return res.json({ success: false, message: "user doesn't exist" });
+    }
+
+    return res.json({ success: true, token, ...user._doc });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: "Error in getting user" });
+  }
+};
+
+export { registerUser, loginUser, getUser };
